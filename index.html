@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RSV-Puzzle-Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <script src="https://esm.sh/easing-utils"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=Martian+Mono" rel="stylesheet">
     <style>
         :root {
             --primary: #0a0a0a;
@@ -37,8 +33,11 @@
             overflow-x: hidden;
             scroll-behavior: smooth;
             position: relative;
+            width: 100vw;
+            height: 100vh;
         }
 
+        /* Header Styles */
         header {
             background-color: var(--dark-gray);
             color: var(--text-primary);
@@ -47,11 +46,6 @@
             position: relative;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.7);
             z-index: 10;
-        }
-
-        h1 {
-            font-family: 'Martian Mono', monospace;
-            font-weight: 600;
         }
 
         .clock-container {
@@ -75,7 +69,6 @@
         .clock-segment {
             margin: 0 0.1rem;
             position: relative;
-            font-family: 'Martian Mono', monospace;
         }
 
         .clock-colon {
@@ -128,12 +121,11 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
+        /* Main Content Styles */
         main {
             padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
-            position: relative;
-            z-index: 5;
         }
 
         section {
@@ -154,11 +146,15 @@
             transform: translateY(0);
         }
 
+        h1, h2, h3 {
+            color: var(--text-primary);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
         h2 {
             margin-bottom: 1.5rem;
             position: relative;
             display: inline-block;
-            font-family: 'Martian Mono', monospace;
         }
 
         h2::after {
@@ -172,6 +168,7 @@
             border-radius: 3px;
         }
 
+        /* Puzzle Game Styles */
         .puzzle-container {
             display: flex;
             flex-direction: column;
@@ -196,10 +193,16 @@
             background-color: var(--light-gray);
         }
 
-        .upload-area:hover, .upload-area.dragover {
+        .upload-area:hover {
             border-color: var(--text-primary);
             background-color: rgba(255, 255, 255, 0.05);
             box-shadow: 0 0 20px var(--glow);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--text-primary);
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
         }
 
         .upload-icon {
@@ -209,7 +212,7 @@
             transition: transform 0.3s ease;
         }
 
-        .upload-area:hover .upload-icon, .upload-area.dragover .upload-icon {
+        .upload-area:hover .upload-icon {
             transform: scale(1.2);
         }
 
@@ -249,7 +252,7 @@
         }
 
         .puzzle-piece:hover {
-            transform: scale(1.05) rotate(2deg);
+            transform: scale(1.05);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             z-index: 2;
         }
@@ -279,7 +282,6 @@
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             will-change: transform;
-            font-family: 'Martian Mono', monospace;
         }
 
         button:hover {
@@ -308,6 +310,7 @@
             }
         }
 
+        /* Leaderboard and Game Container Styles */
         .leaderboard {
             width: 100%;
             max-width: 500px;
@@ -376,6 +379,7 @@
             pointer-events: none;
         }
 
+        /* Footer Styles */
         footer {
             background-color: var(--dark-gray);
             color: var(--text-primary);
@@ -383,14 +387,13 @@
             padding: 2rem;
             margin-top: 3rem;
             box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
-            z-index: 10;
-            position: relative;
         }
 
         .hidden {
             display: none;
         }
 
+        /* Modal Styles */
         .modal {
             position: fixed;
             top: 0;
@@ -446,79 +449,6 @@
             transform: rotate(90deg) scale(1.1);
         }
 
-        .confetti {
-            position: fixed;
-            width: 12px;
-            height: 12px;
-            opacity: 0;
-            z-index: 999;
-            background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff, #ffff00, #ff00ff, #00ffff);
-            border-radius: 50%;
-        }
-
-        .fidget-spinner {
-            position: fixed;
-            bottom: 50px;
-            right: 50px;
-            width: 80px;
-            height: 80px;
-            background: radial-gradient(circle, var(--accent) 10%, var(--dark-gray) 60%);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            z-index: 100;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            transition: box-shadow 0.3s ease;
-        }
-
-        .fidget-spinner.spinning {
-            box-shadow: 0 0 20px var(--glow);
-        }
-
-        .fidget-spinner::before,
-        .fidget-spinner::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: var(--highlight);
-            border-radius: 50%;
-        }
-
-        .fidget-spinner::before {
-            top: 10px;
-        }
-
-        .fidget-spinner::after {
-            bottom: 10px;
-        }
-
-        .game-loading {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: var(--text-primary);
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--accent);
-            border-radius: 50%;
-            border-top-color: var(--text-primary);
-            animation: spin 1s linear infinite;
-            margin-bottom: 1.5rem;
-        }
-
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
-
         /* Background Animation Styles */
         a-hole {
             position: fixed;
@@ -530,6 +460,19 @@
             height: 100%;
             overflow: hidden;
             z-index: -1;
+        }
+
+        a-hole::before {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            z-index: 2;
+            display: block;
+            width: 150%;
+            height: 140%;
+            background: radial-gradient(ellipse at 50% 55%, transparent 10%, black 50%);
+            transform: translate3d(-50%, -50%, 0);
+            content: "";
         }
 
         a-hole::after {
@@ -546,11 +489,6 @@
             content: "";
         }
 
-        @keyframes aura-glow {
-            0% { background-position: 0 100%; }
-            100% { background-position: 0 300%; }
-        }
-
         .aura {
             position: absolute;
             top: -71.5%;
@@ -558,16 +496,7 @@
             z-index: 3;
             width: 30%;
             height: 140%;
-            background: linear-gradient(
-                20deg,
-                #00f8f1,
-                #ffbd1e20 16.5%,
-                #fe848f 33%,
-                #fe848f20 49.5%,
-                #00f8f1 66%,
-                #00f8f160 85.5%,
-                #ffbd1e 100%
-            ) 0 100% / 100% 200%;
+            background: linear-gradient(20deg, #00f8f1, #ffbd1e20 16.5%, #fe848f 33%, #fe848f20 49.5%, #00f8f1 66%, #00f8f160 85.5%, #ffbd1e 100%) 0 100% / 100% 200%;
             border-radius: 0 0 100% 100%;
             filter: blur(50px);
             mix-blend-mode: plus-lighter;
@@ -583,59 +512,141 @@
             z-index: 10;
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(
-                transparent,
-                transparent 1px,
-                white 1px,
-                white 2px
-            );
+            background: repeating-linear-gradient(transparent, transparent 1px, white 1px, white 2px);
             mix-blend-mode: overlay;
             opacity: 0.5;
         }
 
-        a-hole canvas {
+        canvas {
             display: block;
             width: 100%;
             height: 100%;
         }
 
+        @keyframes aura-glow {
+            0% { background-position: 0 100%; }
+            100% { background-position: 0 300%; }
+        }
+
+        /* Fidget Spinner Styles */
+        .fidget-spinner {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            cursor: grab;
+            z-index: 100;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .fidget-spinner:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .fidget-spinner::before,
+        .fidget-spinner::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background-color: var(--highlight);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .fidget-spinner::before {
+            transform: translate(-50%, -50%) rotate(120deg) translate(20px);
+        }
+
+        .fidget-spinner::after {
+            transform: translate(-50%, -50%) rotate(240deg) translate(20px);
+        }
+
+        /* Additional Styles (Scroll Indicator, Particles, etc.) */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--text-secondary);
+            animation: bounce 2s infinite;
+            z-index: 100;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-indicator:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: var(--text-primary);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-15px); }
+            60% { transform: translateX(-50%) translateY(-7px); }
+        }
+
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(100, 150, 255, 0.1);
+            filter: blur(1px);
+        }
+
+        /* Responsive Adjustments */
         @media (max-width: 768px) {
             .clock-container {
                 position: static;
                 margin-top: 1rem;
             }
-
+            
             .nav-links {
                 flex-direction: column;
                 align-items: center;
             }
-
+            
             .nav-link {
                 margin: 0.5rem 0;
                 width: 80%;
                 text-align: center;
             }
-
+            
             section {
                 padding: 1.5rem;
             }
-
+            
             .game-container {
                 height: 350px;
             }
-
+            
             .fidget-spinner {
-                width: 60px;
-                height: 60px;
-            }
-
-            .fidget-spinner::before,
-            .fidget-spinner::after {
-                width: 15px;
-                height: 15px;
+                width: 50px;
+                height: 50px;
             }
         }
 
+        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -655,6 +666,7 @@
     </style>
 </head>
 <body>
+    <!-- Background Animation -->
     <a-hole>
         <canvas class="js-canvas"></canvas>
         <div class="aura"></div>
@@ -687,7 +699,7 @@
             <div class="puzzle-container">
                 <div class="upload-area" id="uploadArea">
                     <div class="upload-icon">📁</div>
-                    <p>Click or drag to upload an image</p>
+                    <p>Click or drag an image here to upload</p>
                     <input type="file" id="imageUpload" accept="image/*" style="display: none;">
                 </div>
 
@@ -719,7 +731,9 @@
                                     <th>Moves</th>
                                 </tr>
                             </thead>
-                            <tbody id="leaderboardBody"></tbody>
+                            <tbody id="leaderboardBody">
+                                <!-- Leaderboard entries will be added here -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -745,12 +759,15 @@
                 </div>
             </div>
         </section>
+
+        <div class="scroll-indicator">↓ Scroll Down ↓</div>
     </main>
 
     <footer>
-        <p>© 2025 RSV-Puzzle_Portal | Created by Ravi sai vigneswara</p>
+        <p>© 2025 RSV-Puzzle_Portal | Created by Ravi Sai Vigneswara</p>
     </footer>
 
+    <!-- Modal for Puzzle Completion -->
     <div class="modal" id="completionModal">
         <div class="modal-content">
             <button class="close-modal" id="closeModal">×</button>
@@ -763,17 +780,23 @@
         </div>
     </div>
 
+    <!-- Fidget Spinner -->
     <div class="fidget-spinner" id="fidgetSpinner"></div>
 
     <script>
-        // === Background Animation ===
+        // ====== Easing Utils for Background Animation ======
+        const easingUtils = {
+            linear: (t) => t,
+            easeInExpo: (t) => (t === 0 ? 0 : Math.pow(2, 10 * t - 10))
+        };
+
+        // ====== Background Animation (AHole Class) ======
         class AHole extends HTMLElement {
             connectedCallback() {
                 this.canvas = this.querySelector(".js-canvas");
                 this.ctx = this.canvas.getContext("2d");
                 this.discs = [];
                 this.lines = [];
-                this.particles = [];
                 this.setSize();
                 this.setDiscs();
                 this.setLines();
@@ -834,11 +857,7 @@
                 this.lines = [];
                 const totalLines = 100;
                 const linesAngle = (Math.PI * 2) / totalLines;
-
-                for (let i = 0; i < totalLines; i++) {
-                    this.lines.push([]);
-                }
-
+                for (let i = 0; i < totalLines; i++) this.lines.push([]);
                 this.discs.forEach((disc) => {
                     for (let i = 0; i < totalLines; i++) {
                         const angle = i * linesAngle;
@@ -846,14 +865,19 @@
                         this.lines[i].push(p);
                     }
                 });
-
                 this.linesCanvas = new OffscreenCanvas(width, height);
                 const ctx = this.linesCanvas.getContext("2d");
-
                 this.lines.forEach((line) => {
+                    ctx.save();
+                    let lineIsIn = false;
                     line.forEach((p1, j) => {
                         if (j === 0) return;
                         const p0 = line[j - 1];
+                        if (!lineIsIn && (ctx.isPointInPath(this.clip.path, p1.x, p1.y) || ctx.isPointInStroke(this.clip.path, p1.x, p1.y))) {
+                            lineIsIn = true;
+                        } else if (lineIsIn) {
+                            ctx.clip(this.clip.path);
+                        }
                         ctx.beginPath();
                         ctx.moveTo(p0.x, p0.y);
                         ctx.lineTo(p1.x, p1.y);
@@ -862,36 +886,32 @@
                         ctx.stroke();
                         ctx.closePath();
                     });
+                    ctx.restore();
                 });
-
                 this.linesCtx = ctx;
             }
 
             setParticles() {
                 const { width, height } = this.rect;
                 this.particles = [];
+                this.particleArea = { sw: this.clip.disc.w * 0.5, ew: this.clip.disc.w * 2, h: height * 0.85 };
+                this.particleArea.sx = (width - this.particleArea.sw) / 2;
+                this.particleArea.ex = (width - this.particleArea.ew) / 2;
                 const totalParticles = 100;
-
                 for (let i = 0; i < totalParticles; i++) {
-                    const particle = {
-                        x: Math.random() * width,
-                        y: Math.random() * height,
-                        r: 0.5 + Math.random() * 4,
-                        vy: 0.5 + Math.random(),
-                        c: `rgba(255, 255, 255, ${Math.random()})`
-                    };
-                    this.particles.push(particle);
+                    this.particles.push(this.initParticle(true));
                 }
             }
 
             initParticle(start = false) {
-                const { width, height } = this.rect;
-                const sx = Math.random() * width;
-                const y = start ? Math.random() * height : height;
+                const sx = this.particleArea.sx + this.particleArea.sw * Math.random();
+                const ex = this.particleArea.ex + this.particleArea.ew * Math.random();
+                const dx = ex - sx;
+                const vx = 0.1 + Math.random() * 0.5;
+                const y = start ? this.particleArea.h * Math.random() : this.particleArea.h;
                 const r = 0.5 + Math.random() * 4;
                 const vy = 0.5 + Math.random();
-
-                return { x: sx, y, r, vy, c: `rgba(255, 255, 255, ${Math.random()})` };
+                return { x: sx, sx, dx, y, vy, p: 0, r, c: `rgba(255, 255, 255, ${Math.random()})` };
             }
 
             tweenValue(start, end, p, ease = false) {
@@ -909,23 +929,26 @@
                 ctx.ellipse(outerDisc.x, outerDisc.y, outerDisc.w, outerDisc.h, 0, 0, Math.PI * 2);
                 ctx.stroke();
                 ctx.closePath();
-
                 this.discs.forEach((disc, i) => {
                     if (i % 5 !== 0) return;
+                    if (disc.w < this.clip.disc.w - 5) ctx.save();
+                    if (disc.w < this.clip.disc.w - 5) ctx.clip(this.clip.path);
                     ctx.beginPath();
                     ctx.ellipse(disc.x, disc.y, disc.w, disc.h, 0, 0, Math.PI * 2);
                     ctx.stroke();
                     ctx.closePath();
+                    if (disc.w < this.clip.disc.w - 5) ctx.restore();
                 });
             }
 
             drawLines() {
-                const { ctx, linesCanvas } = this;
-                ctx.drawImage(linesCanvas, 0, 0);
+                this.ctx.drawImage(this.linesCanvas, 0, 0);
             }
 
             drawParticles() {
                 const { ctx } = this;
+                ctx.save();
+                ctx.clip(this.clip.path);
                 this.particles.forEach((particle) => {
                     ctx.fillStyle = particle.c;
                     ctx.beginPath();
@@ -933,6 +956,7 @@
                     ctx.closePath();
                     ctx.fill();
                 });
+                ctx.restore();
             }
 
             moveDiscs() {
@@ -943,13 +967,11 @@
             }
 
             moveParticles() {
-                const { height, width } = this.rect;
                 this.particles.forEach((particle) => {
-                    particle.y += particle.vy;
-                    if (particle.y > height) {
-                        particle.y = 0;
-                        particle.x = Math.random() * width;
-                    }
+                    particle.p = 1 - particle.y / this.particleArea.h;
+                    particle.x = particle.sx + particle.dx * particle.p;
+                    particle.y -= particle.vy;
+                    if (particle.y < 0) particle.y = this.initParticle().y;
                 });
             }
 
@@ -978,18 +1000,16 @@
 
         customElements.define("a-hole", AHole);
 
-        // === Clock Animation ===
+        // ====== Clock Animation ======
         function updateClock() {
             const now = new Date();
             const utc = now.getTime() + now.getTimezoneOffset() * 60000;
             const ist = new Date(utc + 3600000 * 5.5);
             let hours = ist.getHours();
             const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12;
-            hours = hours ? hours : 12;
+            hours = hours % 12 || 12;
             const minutes = ist.getMinutes().toString().padStart(2, '0');
             const seconds = ist.getSeconds().toString().padStart(2, '0');
-
             animateNumber('hours', hours.toString().padStart(2, '0'));
             animateNumber('minutes', minutes);
             animateNumber('seconds', seconds);
@@ -1012,30 +1032,30 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // === Scroll Animations ===
+        // ====== Scroll Animations ======
         const sections = document.querySelectorAll('section');
-        let lastScrollTime = 0;
-
         function checkScroll() {
-            const now = performance.now();
-            if (now - lastScrollTime < 16) return;
-            lastScrollTime = now;
-
             sections.forEach(section => {
                 const sectionTop = section.getBoundingClientRect().top;
                 const windowHeight = window.innerHeight;
                 if (sectionTop < windowHeight * 0.75) {
                     section.classList.add('visible');
-                    const scrollY = window.scrollY;
-                    section.style.transform = `translateY(${scrollY * 0.05}px)`;
                 }
             });
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            if (window.scrollY > 100) {
+                scrollIndicator.style.opacity = '0';
+                scrollIndicator.style.pointerEvents = 'none';
+            } else {
+                scrollIndicator.style.opacity = '1';
+                scrollIndicator.style.pointerEvents = 'auto';
+            }
         }
 
         window.addEventListener('scroll', checkScroll);
         window.addEventListener('load', checkScroll);
 
-        // === Game Loading ===
+        // ====== Game Loading ======
         setTimeout(() => {
             const crossyGameContainer = document.getElementById('crossyGame');
             crossyGameContainer.innerHTML = `
@@ -1064,22 +1084,19 @@
             });
         }, 2500);
 
-        // === Micro-Interactions ===
-        function addRippleEffect(element) {
-            element.addEventListener('click', function(e) {
-                const rect = this.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
+        // ====== Micro-Interactions ======
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const x = e.clientX - e.target.getBoundingClientRect().left;
+                const y = e.clientY - e.target.getBoundingClientRect().top;
                 const ripple = document.createElement('span');
                 ripple.className = 'ripple';
                 ripple.style.left = `${x}px`;
                 ripple.style.top = `${y}px`;
                 this.appendChild(ripple);
-                setTimeout(() => ripple.remove(), 600);
+                setTimeout(() => ripple.remove(), 1000);
             });
-        }
-
-        document.querySelectorAll('button, .nav-link').forEach(addRippleEffect);
+        });
 
         document.querySelectorAll('.nav-link, button, .game-container, section').forEach(el => {
             el.addEventListener('mouseenter', () => {
@@ -1090,7 +1107,6 @@
                     easing: 'easeOutQuad'
                 });
             });
-
             el.addEventListener('mouseleave', () => {
                 anime({
                     targets: el,
@@ -1101,13 +1117,97 @@
             });
         });
 
-        // === Photo Upload ===
+        // ====== Background Particles ======
+        function createParticles() {
+            const particlesContainer = document.createElement('div');
+            particlesContainer.className = 'particles-container';
+            document.body.appendChild(particlesContainer);
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `${Math.random() * 100}vh`;
+                particle.style.width = `${Math.random() * 3 + 1}px`;
+                particle.style.height = particle.style.width;
+                particle.style.opacity = Math.random() * 0.2;
+                particlesContainer.appendChild(particle);
+                anime({
+                    targets: particle,
+                    translateX: `${(Math.random() - 0.5) * 50}px`,
+                    translateY: `${(Math.random() - 0.5) * 50}px`,
+                    duration: Math.random() * 10000 + 5000,
+                    direction: 'alternate',
+                    loop: true,
+                    easing: 'easeInOutSine'
+                });
+            }
+        }
+        createParticles();
+
+        // ====== Scroll Indicator ======
+        const scrollIndicator = document.querySelector('.scroll-indicator');
+        anime({
+            targets: scrollIndicator,
+            opacity: [0.6, 1],
+            duration: 1500,
+            direction: 'alternate',
+            loop: true,
+            easing: 'easeInOutQuad'
+        });
+        scrollIndicator.addEventListener('click', () => {
+            anime({
+                targets: document.documentElement,
+                scrollTop: document.querySelector('#crossy').offsetTop - 20,
+                duration: 800,
+                easing: 'easeInOutQuad'
+            });
+        });
+
+        // ====== Keyboard Navigation ======
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown') {
+                const currentScroll = window.scrollY;
+                const windowHeight = window.innerHeight;
+                const nextSection = document.elementFromPoint(window.innerWidth / 2, currentScroll + windowHeight / 2).closest('section');
+                if (nextSection) {
+                    e.preventDefault();
+                    anime({
+                        targets: document.documentElement,
+                        scrollTop: nextSection.offsetTop - 20,
+                        duration: 800,
+                        easing: 'easeInOutQuad'
+                    });
+                }
+            } else if (e.key === 'ArrowUp') {
+                const currentScroll = window.scrollY;
+                if (currentScroll === 0) return;
+                const prevSection = document.elementFromPoint(window.innerWidth / 2, currentScroll - window.innerHeight / 2).closest('section');
+                if (prevSection) {
+                    e.preventDefault();
+                    anime({
+                        targets: document.documentElement,
+                        scrollTop: prevSection.offsetTop - 20,
+                        duration: 800,
+                        easing: 'easeInOutQuad'
+                    });
+                }
+            }
+        });
+
+        // ====== Initial Page Load Animation ======
+        anime({
+            targets: 'body',
+            opacity: [0, 1],
+            duration: 1000,
+            easing: 'easeOutQuad'
+        });
+
+        // ====== Upload Photo Functionality ======
         const uploadArea = document.getElementById('uploadArea');
         const imageUpload = document.getElementById('imageUpload');
         const puzzleSetup = document.getElementById('puzzleSetup');
         const puzzleGame = document.getElementById('puzzleGame');
         const puzzleBoard = document.getElementById('puzzleBoard');
-        let uploadedImage = null;
 
         uploadArea.addEventListener('click', () => imageUpload.click());
 
@@ -1124,209 +1224,188 @@
             e.preventDefault();
             uploadArea.classList.remove('dragover');
             const file = e.dataTransfer.files[0];
-            handleImageUpload(file);
+            if (file && file.type.startsWith('image/')) {
+                handleImageUpload(file);
+            }
         });
 
         imageUpload.addEventListener('change', () => {
             const file = imageUpload.files[0];
-            handleImageUpload(file);
+            if (file) {
+                handleImageUpload(file);
+            }
         });
 
         function handleImageUpload(file) {
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    uploadedImage = new Image();
-                    uploadedImage.src = reader.result;
-                    uploadedImage.onload = () => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    uploadArea.classList.add('hidden');
+                    puzzleSetup.classList.remove('hidden');
+                    window.uploadedImage = img; // Store image for puzzle
+                };
+                img.src = e.target.result;
+                anime({
+                    targets: uploadArea,
+                    opacity: [1, 0],
+                    scale: [1, 0.95],
+                    duration: 500,
+                    easing: 'easeOutQuad',
+                    complete: () => {
                         uploadArea.classList.add('hidden');
                         puzzleSetup.classList.remove('hidden');
                         anime({
                             targets: puzzleSetup,
                             opacity: [0, 1],
-                            translateY: [20, 0],
+                            scale: [0.95, 1],
                             duration: 500,
-                            easing: 'easeOutQuad'
+                            easing: 'easeInQuad'
                         });
-                    };
-                };
-                reader.readAsDataURL(file);
-            } else {
-                alert('Please upload a valid image file.');
-            }
+                    }
+                });
+            };
+            reader.readAsDataURL(file);
         }
 
-        // === Puzzle Game Setup ===
-        const difficultyButtons = {
-            easy: document.getElementById('easyBtn'),
-            medium: document.getElementById('mediumBtn'),
-            hard: document.getElementById('hardBtn')
-        };
-
-        Object.entries(difficultyButtons).forEach(([difficulty, button]) => {
-            button.addEventListener('click', () => {
-                const size = difficulty === 'easy' ? 3 : difficulty === 'medium' ? 4 : 5;
-                startPuzzle(size);
-            });
-        });
+        // Basic Puzzle Game Logic (Enhanced)
+        document.getElementById('easyBtn').addEventListener('click', () => startPuzzle(3));
+        document.getElementById('mediumBtn').addEventListener('click', () => startPuzzle(4));
+        document.getElementById('hardBtn').addEventListener('click', () => startPuzzle(5));
 
         function startPuzzle(size) {
             puzzleSetup.classList.add('hidden');
             puzzleGame.classList.remove('hidden');
             puzzleBoard.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
             puzzleBoard.innerHTML = '';
-
-            const pieceWidth = uploadedImage.width / size;
-            const pieceHeight = uploadedImage.height / size;
-
-            for (let y = 0; y < size; y++) {
-                for (let x = 0; x < size; x++) {
-                    if (x === size - 1 && y === size - 1) continue; // Empty tile
-                    const piece = document.createElement('div');
-                    piece.className = 'puzzle-piece';
-                    piece.style.backgroundImage = `url(${uploadedImage.src})`;
-                    piece.style.backgroundPosition = `-${x * pieceWidth}px -${y * pieceHeight}px`;
-                    piece.dataset.x = x;
-                    piece.dataset.y = y;
-                    piece.addEventListener('click', () => movePuzzlePiece(piece, size));
-                    puzzleBoard.appendChild(piece);
-                }
+            const pieceWidth = 500 / size;
+            const pieceHeight = 500 / size;
+            const pieces = [];
+            for (let i = 0; i < size * size - 1; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'puzzle-piece';
+                piece.style.width = `${pieceWidth}px`;
+                piece.style.height = `${pieceHeight}px`;
+                piece.style.backgroundImage = `url(${window.uploadedImage.src})`;
+                piece.style.backgroundPosition = `${-(i % size) * pieceWidth}px ${-Math.floor(i / size) * pieceHeight}px`;
+                piece.dataset.index = i;
+                pieces.push(piece);
+                puzzleBoard.appendChild(piece);
             }
-
+            const emptyPiece = document.createElement('div');
+            emptyPiece.className = 'puzzle-piece empty';
+            emptyPiece.style.width = `${pieceWidth}px`;
+            emptyPiece.style.height = `${pieceHeight}px`;
+            emptyPiece.dataset.index = size * size - 1;
+            pieces.push(emptyPiece);
+            puzzleBoard.appendChild(emptyPiece);
+            pieces.forEach(piece => {
+                piece.addEventListener('click', () => {
+                    const empty = puzzleBoard.querySelector('.empty');
+                    const pieceIndex = parseInt(piece.dataset.index);
+                    const emptyIndex = parseInt(empty.dataset.index);
+                    const rowSize = size;
+                    const adjacent = [
+                        emptyIndex - 1, emptyIndex + 1,
+                        emptyIndex - rowSize, emptyIndex + rowSize
+                    ].includes(pieceIndex) && (
+                        (pieceIndex % rowSize !== 0 || emptyIndex % rowSize !== rowSize - 1) &&
+                        (pieceIndex % rowSize !== rowSize - 1 || emptyIndex % rowSize !== 0)
+                    );
+                    if (adjacent) {
+                        puzzleBoard.insertBefore(empty, piece);
+                        puzzleBoard.insertBefore(piece, empty.nextSibling);
+                        piece.dataset.index = emptyIndex;
+                        empty.dataset.index = pieceIndex;
+                        anime({
+                            targets: piece,
+                            scale: [1, 1.1, 1],
+                            duration: 200,
+                            easing: 'easeInOutQuad'
+                        });
+                    }
+                });
+            });
             anime({
                 targets: puzzleGame,
                 opacity: [0, 1],
-                translateY: [20, 0],
+                scale: [0.95, 1],
                 duration: 500,
-                easing: 'easeOutQuad'
+                easing: 'easeInQuad'
             });
         }
 
-        // === Puzzle Game Logic ===
-        function movePuzzlePiece(piece, size) {
-            anime({
-                targets: piece,
-                scale: [1, 1.1, 1],
-                duration: 200,
-                easing: 'easeInOutQuad'
-            });
-
-            setTimeout(() => {
-                showCompletionModal(50, '2:30');
-            }, 1000);
-        }
-
-        // === Modal and Confetti ===
-        const completionModal = document.getElementById('completionModal');
-        const closeModalBtn = document.getElementById('closeModal');
-        const playAgainBtn = document.getElementById('playAgainBtn');
-        const leaderboardBtn = document.getElementById('leaderboardBtn');
-
-        function showCompletionModal(moves, time) {
-            document.getElementById('completionStats').textContent = `You solved the puzzle in ${moves} moves and ${time}!`;
-            completionModal.classList.add('active');
-            createConfetti();
-        }
-
-        function createConfetti() {
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = `${Math.random() * 100}vw`;
-                confetti.style.top = `${Math.random() * 100}vh`;
-                document.body.appendChild(confetti);
-                anime({
-                    targets: confetti,
-                    translateY: 1000,
-                    rotate: Math.random() * 360,
-                    opacity: [1, 0],
-                    duration: 2000,
-                    easing: 'easeInQuad',
-                    complete: () => confetti.remove()
-                });
-            }
-        }
-
-        closeModalBtn.addEventListener('click', () => {
-            completionModal.classList.remove('active');
+        document.getElementById('shuffleBtn').addEventListener('click', () => {
+            // Placeholder for shuffle logic
         });
 
-        playAgainBtn.addEventListener('click', () => {
-            completionModal.classList.remove('active');
+        document.getElementById('solveBtn').addEventListener('click', () => {
+            // Placeholder for solve logic
+        });
+
+        document.getElementById('newPuzzleBtn').addEventListener('click', () => {
             puzzleGame.classList.add('hidden');
             uploadArea.classList.remove('hidden');
+            anime({
+                targets: uploadArea,
+                opacity: [0, 1],
+                scale: [0.95, 1],
+                duration: 500,
+                easing: 'easeInQuad'
+            });
         });
 
-        leaderboardBtn.addEventListener('click', () => {
-            alert('Leaderboard coming soon!');
-        });
-
-        // === Fidget Spinner ===
+        // ====== Fidget Spinner Interactivity ======
         const fidgetSpinner = document.getElementById('fidgetSpinner');
         let isDragging = false;
-        let rotation = 0;
-        let velocity = 0;
+        let previousTime = 0;
+        let previousAngle = 0;
+        let currentRotation = 0;
+        let angularVelocity = 0;
 
-        fidgetSpinner.addEventListener('mousedown', () => {
+        fidgetSpinner.addEventListener('mousedown', (e) => {
             isDragging = true;
-            velocity = 0;
-            fidgetSpinner.classList.add('spinning');
+            previousTime = performance.now();
+            const rect = fidgetSpinner.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            previousAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+            fidgetSpinner.style.cursor = 'grabbing';
         });
 
         document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            velocity = e.movementX * 0.1;
+            if (isDragging) {
+                const currentTime = performance.now();
+                const timeDelta = currentTime - previousTime;
+                previousTime = currentTime;
+                const rect = fidgetSpinner.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+                const angleDiff = currentAngle - previousAngle;
+                previousAngle = currentAngle;
+                currentRotation += angleDiff * (180 / Math.PI);
+                fidgetSpinner.style.transform = `rotate(${currentRotation}deg)`;
+                angularVelocity = (angleDiff * (180 / Math.PI)) / (timeDelta / 1000); // degrees per second
+            }
         });
 
         document.addEventListener('mouseup', () => {
-            isDragging = false;
-        });
-
-        function spinFidgetSpinner() {
-            if (!isDragging && Math.abs(velocity) > 0.01) {
-                rotation += velocity;
-                velocity *= 0.98; // Friction
+            if (isDragging) {
+                isDragging = false;
+                fidgetSpinner.style.cursor = 'grab';
+                const deceleration = 100; // degrees per second squared
+                const duration = Math.abs(angularVelocity) / deceleration * 1000; // in ms
                 anime({
                     targets: fidgetSpinner,
-                    rotate: rotation,
-                    duration: 16,
-                    easing: 'linear'
+                    rotate: currentRotation + (angularVelocity * duration / 2000),
+                    duration: duration,
+                    easing: 'easeOutQuad',
+                    update: (anim) => {
+                        currentRotation = anim.animations[0].currentValue;
+                    }
                 });
-            } else if (Math.abs(velocity) <= 0.01) {
-                fidgetSpinner.classList.remove('spinning');
             }
-            requestAnimationFrame(spinFidgetSpinner);
-        }
-
-        spinFidgetSpinner();
-
-        // === Keyboard Navigation ===
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                e.preventDefault();
-                const currentScroll = window.scrollY;
-                const windowHeight = window.innerHeight;
-                const targetSection = e.key === 'ArrowDown'
-                    ? document.elementFromPoint(window.innerWidth / 2, currentScroll + windowHeight / 2).closest('section')
-                    : document.elementFromPoint(window.innerWidth / 2, currentScroll - windowHeight / 2).closest('section');
-
-                if (targetSection) {
-                    anime({
-                        targets: document.documentElement,
-                        scrollTop: targetSection.offsetTop - 20,
-                        duration: 800,
-                        easing: 'easeInOutQuad'
-                    });
-                }
-            }
-        });
-
-        // === Initial Page Load ===
-        anime({
-            targets: 'body',
-            opacity: [0, 1],
-            duration: 1000,
-            easing: 'easeOutQuad'
         });
     </script>
 </body>
