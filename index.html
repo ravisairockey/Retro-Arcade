@@ -44,7 +44,38 @@
             z-index: 10;
         }
         
-        /* Clock styles remain the same */
+        .clock-container {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--accent);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .clock {
+            display: flex;
+            align-items: center;
+        }
+        
+        .clock-segment {
+            margin: 0 0.1rem;
+            position: relative;
+        }
+        
+        .clock-colon {
+            margin: 0 0.2rem;
+            animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
         
         .nav-links {
             display: flex;
@@ -71,7 +102,6 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
-        /* Main content styles */
         main {
             padding: 2rem;
             max-width: 1200px;
@@ -147,6 +177,7 @@
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             z-index: 100;
+            transition: all 0.3s ease;
         }
         
         .spinner-center {
@@ -166,6 +197,7 @@
             left: 8px;
             transform-origin: bottom center;
             border-radius: 2px;
+            transition: transform 0.2s ease;
         }
         
         /* Micro-interaction animations */
@@ -183,6 +215,13 @@
         @media (max-width: 768px) {
             .game-container {
                 height: 350px;
+            }
+            
+            .spinner-widget {
+                width: 50px;
+                height: 50px;
+                bottom: 15px;
+                right: 15px;
             }
         }
     </style>
@@ -281,10 +320,24 @@
                 const minutes = now.getMinutes().toString().padStart(2, '0');
                 const seconds = now.getSeconds().toString().padStart(2, '0');
                 
-                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-                document.getElementById('minutes').textContent = minutes;
-                document.getElementById('seconds').textContent = seconds;
+                // Animate number changes
+                animateNumber('hours', hours.toString().padStart(2, '0'));
+                animateNumber('minutes', minutes);
+                animateNumber('seconds', seconds);
                 document.getElementById('ampm').textContent = ampm;
+            }
+            
+            function animateNumber(elementId, newValue) {
+                const element = document.getElementById(elementId);
+                if (element.textContent !== newValue) {
+                    anime({
+                        targets: element,
+                        innerText: [element.textContent, newValue],
+                        round: 1,
+                        easing: 'easeInOutQuad',
+                        duration: 500
+                    });
+                }
             }
             
             setInterval(updateClock, 1000);
@@ -296,33 +349,48 @@
             
             let spinInterval;
             let isSpinning = false;
+            let currentRotation = 0;
+            
+            // Add floating animation to spinner
+            anime({
+                targets: spinnerWidget,
+                translateY: [0, -10, 0],
+                duration: 2000,
+                loop: true,
+                easing: 'easeInOutSine'
+            });
             
             spinnerWidget.addEventListener('click', function() {
                 if (isSpinning) {
+                    // Stop spinning
                     clearInterval(spinInterval);
                     anime({
                         targets: spinnerArm,
                         rotate: 0,
-                        duration: 500,
+                        duration: 800,
                         easing: 'easeOutElastic'
                     });
+                    
+                    // Remove floating animation from sections
+                    anime.remove('section');
                 } else {
-                    let rotation = 0;
+                    // Start spinning
                     spinInterval = setInterval(() => {
-                        rotation += 30;
-                        spinnerArm.style.transform = `rotate(${rotation}deg)`;
+                        currentRotation += 30;
+                        spinnerArm.style.transform = `rotate(${currentRotation}deg)`;
                     }, 50);
                     
                     // Add floating animation to all sections
                     anime({
                         targets: 'section',
-                        translateY: [0, -10, 0],
+                        translateY: [0, -15, 0],
                         duration: 1500,
                         delay: anime.stagger(200),
                         loop: true,
                         easing: 'easeInOutSine'
                     });
                 }
+                
                 isSpinning = !isSpinning;
                 
                 // Pulse animation on click
@@ -373,6 +441,14 @@
                     boxShadow: 'none',
                     duration: 300
                 });
+            });
+            
+            // Initial page load animation
+            anime({
+                targets: 'body',
+                opacity: [0, 1],
+                duration: 1000,
+                easing: 'easeOutQuad'
             });
         });
     </script>
