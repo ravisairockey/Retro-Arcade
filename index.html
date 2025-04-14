@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime.js Puzzle Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        :root {
+            --primary: #000;
+            --secondary: #fff;
+            --accent: #555;
+            --light-gray: #f0f0f0;
+            --dark-gray: #222;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--secondary);
+            color: var(--primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: var(--secondary);
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .clock-container {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--dark-gray);
+            color: var(--secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .clock {
+            display: flex;
+            align-items: center;
+        }
+        
+        .clock-segment {
+            margin: 0 0.1rem;
+            position: relative;
+        }
+        
+        .clock-colon {
+            margin: 0 0.2rem;
+            animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        .nav-link {
+            color: var(--secondary);
+            text-decoration: none;
+            margin: 0 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--secondary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background-color: var(--light-gray);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--primary);
+        }
+        
+        .puzzle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .upload-area {
+            width: 100%;
+            max-width: 500px;
+            height: 200px;
+            border: 3px dashed var(--accent);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .puzzle-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin: 2rem 0;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .puzzle-piece {
+            aspect-ratio: 1;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            border: 1px solid var(--accent);
+            transition: transform 0.2s ease;
+        }
+        
+        .puzzle-piece:hover {
+            transform: scale(1.03);
+        }
+        
+        .puzzle-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: var(--secondary);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            background-color: var(--dark-gray);
+            transform: translateY(-2px);
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%, -50%);
+            transform-origin: 50% 50%;
+        }
+        
+        button:focus:not(:active)::after {
+            animation: ripple 0.6s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        .leaderboard {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 2rem;
+        }
+        
+        .leaderboard h3 {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .leaderboard-table th, 
+        .leaderboard-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid var(--accent);
+        }
+        
+        .leaderboard-table th {
+            background-color: var(--dark-gray);
+            color: var(--secondary);
+        }
+        
+        .leaderboard-table tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .game-container {
+            width: 100%;
+            height: 500px;
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+        
+        footer {
+            background-color: var(--primary);
+            color: var(--secondary);
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            background-color: var(--secondary);
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--primary);
+        }
+        
+        /* Confetti effect */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+            z-index: 999;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .clock-container {
+                position: static;
+                margin-top: 1rem;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-link {
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Anime.js Puzzle Portal</h1>
+        <div class="clock-container">
+            <div class="clock">
+                <div class="clock-segment" id="hours">00</div>
+                <div class="clock-colon">:</div>
+                <div class="clock-segment" id="minutes">00</div>
+                <div class="clock-colon">:</div>
+                <div class="clock-segment" id="seconds">00</div>
+                <div class="clock-segment" id="ampm" style="margin-left: 0.5rem;">AM</div>
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="#puzzle" class="nav-link">Puzzle Game</a>
+            <a href="#crossy" class="nav-link">Crossy Road</a>
+            <a href="#stack" class="nav-link">Stack Game</a>
+            <a href="https://resume-rsv.ct.ws/" class="nav-link" target="_blank">My Resume</a>
+        </div>
+    </header>
+    
+    <main>
+        <section id="puzzle">
+            <h2>Puzzle Game</h2>
+            <div class="puzzle-container">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <p>Click to upload an image</p>
+                    <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                </div>
+                
+                <div id="puzzleSetup" class="hidden">
+                    <p>Choose puzzle difficulty:</p>
+                    <div class="puzzle-controls">
+                        <button id="easyBtn">Easy (3x3)</button>
+                        <button id="mediumBtn">Medium (4x4)</button>
+                        <button id="hardBtn">Hard (5x5)</button>
+                    </div>
+                </div>
+                
+                <div id="puzzleGame" class="hidden">
+                    <div class="puzzle-board" id="puzzleBoard"></div>
+                    <div class="puzzle-controls">
+                        <button id="shuffleBtn">Shuffle</button>
+                        <button id="solveBtn">Solve</button>
+                        <button id="newPuzzleBtn">New Puzzle</button>
+                    </div>
+                    
+                    <div class="leaderboard">
+                        <h3>Top Players</h3>
+                        <table class="leaderboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Name</th>
+                                    <th>Time</th>
+                                    <th>Moves</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboardBody">
+                                <!-- Leaderboard entries will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="crossy">
+            <h2>Crossy Road Game</h2>
+            <div class="game-container" id="crossyGame">
+                <!-- Crossy Road game will be embedded here -->
+            </div>
+        </section>
+        
+        <section id="stack">
+            <h2>Stack Game</h2>
+            <div class="game-container" id="stackGame">
+                <!-- Stack game will be embedded here -->
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>© 2023 Anime.js Puzzle Portal | Created with Anime.js</p>
+    </footer>
+    
+    <!-- Modal for puzzle completion -->
+    <div class="modal" id="completionModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeModal">&times;</button>
+            <h2>Puzzle Complete! 🎉</h2>
+            <p id="completionStats">You solved the puzzle in X moves and Y time!</p>
+            <div class="puzzle-controls">
+                <button id="playAgainBtn">Play Again</button>
+                <button id="leaderboardBtn">View Leaderboard</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Real-time IST Clock with Anime.js
+        function updateClock() {
+            const now = new Date();
+            
+            // Convert to IST (UTC+5:30)
+            const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+            const ist = new Date(utc + 3600000 * 5.5);
+            
+            let hours = ist.getHours();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // Convert 0 to 12
+            
+            const minutes = ist.getMinutes().toString().padStart(2, '0');
+            const seconds = ist.getSeconds().toString().padStart(2, '0');
+            
+            // Animate clock segments
+            animateNumber('hours', hours.toString().padStart(2, '0'));
+            animateNumber('minutes', minutes);
+            animateNumber('seconds', seconds);
+            document.getElementById('ampm').textContent = ampm;
+        }
+        
+        function animateNumber(elementId, newValue) {
+            const element = document.getElementById(elementId);
+            if (element.textContent !== newValue) {
+                anime({
+                    targets: element,
+                    innerText: [element.textContent, newValue],
+                    round: 1,
+                    easing: 'easeInOutQuad',
+                    duration: 500
+                });
+            }
+        }
+        
+        setInterval(updateClock, 1000);
+        updateClock(); // Initialize immediately
+        
+        // Puzzle Game Logic
+        let puzzlePieces = [];
+        let emptyIndex = 0;
+        let moveCount = 0;
+        let startTime = 0;
+        let timerInterval;
+        let currentDifficulty = 3; // 3x3 by default
+        let originalImage = null;
+        
+        // Leaderboard data
+        let leaderboard = JSON.parse(localStorage.getItem('puzzleLeaderboard')) || [];
+        
+        // DOM elements
+        const uploadArea = document.getElementById('uploadArea');
+        const imageUpload = document.getElementById('imageUpload');
+        const puzzleSetup = document.getElementById('puzzleSetup');
+        const puzzleGame = document.getElementById('puzzleGame');
+        const puzzleBoard = document.getElementById('puzzleBoard');
+        const easyBtn = document.getElementById('easyBtn');
+        const mediumBtn = document.getElementById('mediumBtn');
+        const hardBtn = document.getElementById('hardBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        const solveBtn = document.getElementById('solveBtn');
+        const newPuzzleBtn = document.getElementById('newPuzzleBtn');
+        const leaderboardBody = document.getElementById('leaderboardBody');
+        const completionModal = document.getElementById('completionModal');
+        const closeModal = document.getElementById('closeModal');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const leaderboardBtn = document.getElementById('leaderboardBtn');
+        const completionStats = document.getElementById('completionStats');
+        
+        // Event listeners
+        uploadArea.addEventListener('click', () => imageUpload.click());
+        imageUpload.addEventListener('change', handleImageUpload);
+        easyBtn.addEventListener('click', () => startPuzzleGame(3));
+        mediumBtn.addEventListener('click', () => startPuzzleGame(4));
+        hardBtn.addEventListener('click', () => startPuzzleGame(5));
+        shuffleBtn.addEventListener('click', shufflePuzzle);
+        solveBtn.addEventListener('click', solvePuzzle);
+        newPuzzleBtn.addEventListener('click', resetPuzzleGame);
+        closeModal.addEventListener('click', () => completionModal.classList.remove('active'));
+        playAgainBtn.addEventListener('click', () => {
+            completionModal.classList.remove('active');
+            shufflePuzzle();
+        });
+        leaderboardBtn.addEventListener('click', () => {
+            completionModal.classList.remove('active');
+            // Scroll to leaderboard
+            document.querySelector('.leaderboard').scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        // Update leaderboard display
+        updateLeaderboard();
+        
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                originalImage = event.target.result;
+                
+                // Show puzzle setup options
+                puzzleSetup.classList.remove('hidden');
+                uploadArea.style.backgroundImage = `url(${originalImage})`;
+                uploadArea.style.backgroundSize = 'cover';
+                uploadArea.style.backgroundPosition = 'center';
+                uploadArea.querySelector('.upload-icon').style.display = 'none';
+                uploadArea.querySelector('p').textContent = 'Image loaded!';
+                
+                // Animate the upload area
+                anime({
+                    targets: uploadArea,
+                    scale: [1, 1.05, 1],
+                    duration: 800,
+                    easing: 'easeInOutQuad'
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function startPuzzleGame(difficulty) {
+            currentDifficulty = difficulty;
+            
+            // Hide setup, show game
+            puzzleSetup.classList.add('hidden');
+            puzzleGame.classList.remove('hidden');
+            
+            // Initialize puzzle board
+            initializePuzzleBoard();
+            
+            // Start timer
+            startTime = Date.now();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+        
+        function initializePuzzleBoard() {
+            puzzleBoard.innerHTML = '';
+            puzzleBoard.style.gridTemplateColumns = `repeat(${currentDifficulty}, 1fr)`;
+            
+            const pieceSize = 100 / currentDifficulty;
+            puzzlePieces = [];
+            
+            // Create puzzle pieces
+            for (let i = 0; i < currentDifficulty * currentDifficulty; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'puzzle-piece';
+                
+                if (i === currentDifficulty * currentDifficulty - 1) {
+                    // Last piece is empty
+                    piece.style.backgroundColor = 'var(--dark-gray)';
+                    piece.style.backgroundImage = 'none';
+                    emptyIndex = i;
+                } else {
+                    // Calculate background position for each piece
+                    const row = Math.floor(i / currentDifficulty);
+                    const col = i % currentDifficulty;
+                    
+                    piece.style.backgroundImage = `url(${originalImage})`;
+                    piece.style.backgroundSize = `${currentDifficulty * 100}%`;
+                    piece.style.backgroundPosition = `-${col * pieceSize}% -${row * pieceSize}%`;
+                    
+                    piece.dataset.index = i;
+                    piece.addEventListener('click', () => movePiece(i));
+                }
+                
+                puzzleBoard.appendChild(piece);
+                puzzlePieces.push(piece);
+            }
+            
+            // Initial shuffle
+            shufflePuzzle();
+        }
+        
+        function shufflePuzzle() {
+            moveCount = 0;
+            startTime = Date.now();
+            
+            // Reset empty index to last position
+            if (emptyIndex !== puzzlePieces.length - 1) {
+                swapPieces(emptyIndex, puzzlePieces.length - 1);
+                emptyIndex = puzzlePieces.length - 1;
+            }
+            
+            // Perform random valid moves to shuffle
+            const shuffleMoves = currentDifficulty * 50; // More moves for larger puzzles
+            let lastMove = null;
+            
+            for (let i = 0; i < shuffleMoves; i++) {
+                const possibleMoves = getAdjacentIndices(emptyIndex);
+                
+                // Filter out the reverse of the last move to prevent back-and-forth
+                const validMoves = possibleMoves.filter(index => 
+                    !lastMove || index !== lastMove.from
+                );
+                
+                if (validMoves.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * validMoves.length);
+                    const moveTo = validMoves[randomIndex];
+                    
+                    lastMove = { from: emptyIndex, to: moveTo };
+                    swapPieces(emptyIndex, moveTo);
+                    emptyIndex = moveTo;
+                }
+            }
+            
+            // Animate the shuffle
+            anime({
+                targets: puzzlePieces.filter((_, i) => i !== emptyIndex),
+                translateX: [
+                    { value: anime.random(-10, 10) },
+                    { value: 0 }
+                ],
+                translateY: [
+                    { value: anime.random(-10, 10) },
+                    { value: 0 }
+                ],
+                duration: 500,
+                delay: anime.stagger(50),
+                easing: 'easeInOutQuad'
+            });
+        }
+        
+        function movePiece(index) {
+            if (isAdjacent(index, emptyIndex)) {
+                moveCount++;
+                swapPieces(index, emptyIndex);
+                emptyIndex = index;
+                
+                // Check if puzzle is solved
+                if (isPuzzleSolved()) {
+                    clearInterval(timerInterval);
+                    showCompletion();
+                }
+            }
+        }
+        
+        function swapPieces(index1, index2) {
+            // Swap positions in the DOM
+            const temp = puzzlePieces[index1].style.backgroundImage;
+            puzzlePieces[index1].style.backgroundImage = puzzlePieces[index2].style.backgroundImage;
+            puzzlePieces[index2].style.backgroundImage = temp;
+            
+            // Swap background positions
+            const tempPos = puzzlePieces[index1].style.backgroundPosition;
+            puzzlePieces[index1].style.backgroundPosition = puzzlePieces[index2].style.backgroundPosition;
+            puzzlePieces[index2].style.backgroundPosition = tempPos;
+            
+            // Animate the swap
+            const piece1 = puzzlePieces[index1];
+            const piece2 = puzzlePieces[index2];
+            
+            anime({
+                targets: [piece1, piece2],
+                scale: [1, 1.1, 1],
+                duration: 300,
+                easing: 'easeInOutQuad'
+            });
+        }
+        
+        function isAdjacent(index1, index2) {
+            const row1 = Math.floor(index1 / currentDifficulty);
+            const col1 = index1 % currentDifficulty;
+            const row2 = Math.floor(index2 / currentDifficulty);
+            const col2 = index2 % currentDifficulty;
+            
+            return (
+                (Math.abs(row1 - row2) === 1 && col1 === col2) || 
+                (Math.abs(col1 - col2) === 1 && row1 === row2)
+            );
+        }
+        
+        function getAdjacentIndices(index) {
+            const row = Math.floor(index / currentDifficulty);
+            const col = index % currentDifficulty;
+            const adjacent = [];
+            
+            if (row > 0) adjacent.push(index - currentDifficulty);
+            if (row < currentDifficulty - 1) adjacent.push(index + currentDifficulty);
+            if (col > 0) adjacent.push(index - 1);
+            if (col < currentDifficulty - 1) adjacent.push(index + 1);
+            
+            return adjacent;
+        }
+        
+        function isPuzzleSolved() {
+            for (let i = 0; i < puzzlePieces.length - 1; i++) {
+                const piece = puzzlePieces[i];
+                if (!piece.style.backgroundImage.includes(originalImage)) {
+                    return false;
+                }
+                
+                const row = Math.floor(i / currentDifficulty);
+                const col = i % currentDifficulty;
+                const pieceSize = 100 / currentDifficulty;
+                const expectedPos = `-${col * pieceSize}% -${row * pieceSize}%`;
+                
+                if (piece.style.backgroundPosition !== expectedPos) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        function solvePuzzle() {
+            clearInterval(timerInterval);
+            
+            // Reset to solved state
+            for (let i = 0; i < puzzlePieces.length; i++) {
+                if (i === puzzlePieces.length - 1) {
+                    puzzlePieces[i].style.backgroundImage = 'none';
+                    puzzlePieces[i].style.backgroundColor = 'var(--dark-gray)';
+                } else {
+                    const row = Math.floor(i / currentDifficulty);
+                    const col = i % currentDifficulty;
+                    const pieceSize = 100 / currentDifficulty;
+                    
+                    puzzlePieces[i].style.backgroundImage = `url(${originalImage})`;
+                    puzzlePieces[i].style.backgroundPosition = `-${col * pieceSize}% -${row * pieceSize}%`;
+                    puzzlePieces[i].style.backgroundColor = 'transparent';
+                }
+            }
+            
+            emptyIndex = puzzlePieces.length - 1;
+            
+            // Animate the solve
+            anime({
+                targets: puzzlePieces.filter((_, i) => i !== emptyIndex),
+                rotate: [
+                    { value: anime.random(-180, 180) },
+                    { value: 0 }
+                ],
+                scale: [
+                    { value: 1.2 },
+                    { value: 1 }
+                ],
+                duration: 1000,
+                delay: anime.stagger(50),
+                easing: 'easeInOutQuad'
+            });
+        }
+        
+        function resetPuzzleGame() {
+            clearInterval(timerInterval);
+            puzzleGame.classList.add('hidden');
+            puzzleSetup.classList.remove('hidden');
+            
+            // Reset upload area
+            uploadArea.style.backgroundImage = '';
+            uploadArea.style.backgroundColor = '';
+            uploadArea.querySelector('.upload-icon').style.display = '';
+            uploadArea.querySelector('p').textContent = 'Click to upload an image';
+            imageUpload.value = '';
+        }
+        
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            // You can display this somewhere if needed
+        }
+        
+        function showCompletion() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            const timeString = `${minutes}m ${seconds}s`;
+            
+            completionStats.textContent = `You solved the ${currentDifficulty}x${currentDifficulty} puzzle in ${moveCount} moves and ${timeString}!`;
+            
+            // Add to leaderboard if in top 3
+            updateLeaderboardWithNewScore(moveCount, timeString);
+            
+            // Show confetti
+            createConfetti();
+            
+            // Show modal
+            completionModal.classList.add('active');
+        }
+        
+        function updateLeaderboardWithNewScore(moves, time) {
+            const difficultyName = `${currentDifficulty}x${currentDifficulty}`;
+            const playerName = "Player"; // In a real app, you'd prompt for this
+            
+            // Find or create leaderboard for this difficulty
+            let difficultyLeaderboard = leaderboard.find(item => item.difficulty === difficultyName);
+            
+            if (!difficultyLeaderboard) {
+                difficultyLeaderboard = {
+                    difficulty: difficultyName,
+                    scores: []
+                };
+                leaderboard.push(difficultyLeaderboard);
+            }
+            
+            // Add new score
+            difficultyLeaderboard.scores.push({
+                name: playerName,
+                moves: moves,
+                time: time,
+                date: new Date().toLocaleDateString()
+            });
+            
+            // Sort by moves, then time
+            difficultyLeaderboard.scores.sort((a, b) => {
+                if (a.moves !== b.moves) return a.moves - b.moves;
+                return a.time.localeCompare(b.time);
+            });
+            
+            // Keep only top 3
+            difficultyLeaderboard.scores = difficultyLeaderboard.scores.slice(0, 3);
+            
+            // Save to localStorage
+            localStorage.setItem('puzzleLeaderboard', JSON.stringify(leaderboard));
+            
+            // Update display
+            updateLeaderboard();
+        }
+        
+        function updateLeaderboard() {
+            leaderboardBody.innerHTML = '';
+            
+            leaderboard.forEach(difficultyBoard => {
+                // Add difficulty header
+                const headerRow = document.createElement('tr');
+                const headerCell = document.createElement('td');
+                headerCell.colSpan = 4;
+                headerCell.textContent = `${difficultyBoard.difficulty} Puzzle`;
+                headerCell.style.fontWeight = 'bold';
+                headerCell.style.textAlign = 'center';
+                headerCell.style.backgroundColor = 'var(--accent)';
+                headerCell.style.color = 'white';
+                headerRow.appendChild(headerCell);
+                leaderboardBody.appendChild(headerRow);
+                
+                // Add scores
+                difficultyBoard.scores.forEach((score, index) => {
+                    const row = document.createElement('tr');
+                    
+                    const rankCell = document.createElement('td');
+                    rankCell.textContent = index + 1;
+                    row.appendChild(rankCell);
+                    
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = score.name;
+                    row.appendChild(nameCell);
+                    
+                    const timeCell = document.createElement('td');
+                    timeCell.textContent = score.time;
+                    row.appendChild(timeCell);
+                    
+                    const movesCell = document.createElement('td');
+                    movesCell.textContent = score.moves;
+                    row.appendChild(movesCell);
+                    
+                    leaderboardBody.appendChild(row);
+                });
+            });
+            
+            if (leaderboard.length === 0) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 4;
+                cell.textContent = 'No scores yet. Be the first!';
+                cell.style.textAlign = 'center';
+                row.appendChild(cell);
+                leaderboardBody.appendChild(row);
+            }
+        }
+        
+        function createConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.top = '-10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = `${Math.random() * 10 + 5}px`;
+                confetti.style.height = `${Math.random() * 10 + 5}px`;
+                confetti.style.borderRadius = `${Math.random() * 50}%`;
+                
+                document.body.appendChild(confetti);
+                
+                anime({
+                    targets: confetti,
+                    translateY: `${window.innerHeight + 10}px`,
+                    translateX: `${(Math.random() - 0.5) * 200}px`,
+                    rotate: `${Math.random() * 360}deg`,
+                    opacity: [
+                        { value: 1, duration: 0 },
+                        { value: 0, duration: 1000 }
+                    ],
+                    duration: 3000,
+                    easing: 'easeInOutQuad',
+                    complete: () => confetti.remove()
+                });
+            }
+        }
+        
+        // Embed Crossy Road game
+        const crossyGameContainer = document.getElementById('crossyGame');
+        crossyGameContainer.innerHTML = `
+            <iframe src="https://github.com/ravisairockey/EndlessRunner.git" 
+                    style="width:100%; height:100%; border:none;"></iframe>
+        `;
+        
+        // Embed Stack game
+        const stackGameContainer = document.getElementById('stackGame');
+        stackGameContainer.innerHTML = `
+            <iframe src="https://ravisairockey.github.io/EndlessRunner/" 
+                    style="width:100%; height:100%; border:none;"></iframe>
+        `;
+        
+        // Initialize page animations
+        anime({
+            targets: 'header, section',
+            translateY: [20, 0],
+            opacity: [0, 1],
+            delay: anime.stagger(100),
+            duration: 800,
+            easing: 'easeOutExpo'
+        });
+        
+        anime({
+            targets: '.nav-link',
+            translateX: [-20, 0],
+            opacity: [0, 1],
+            delay: anime.stagger(100, {start: 500}),
+            duration: 600,
+            easing: 'easeOutExpo'
+        });
+    </script>
+</body>
+</html>
