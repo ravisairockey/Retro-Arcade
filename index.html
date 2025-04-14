@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RSV-Puzzle-Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://esm.sh/easing-utils"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=Martian+Mono" rel="stylesheet">
     <style>
         :root {
             --primary: #0a0a0a;
@@ -18,22 +22,23 @@
             --border: #252525;
             --glow: rgba(100, 150, 255, 0.1);
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
             background-color: var(--primary);
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
             scroll-behavior: smooth;
+            position: relative;
         }
-        
+
         header {
             background-color: var(--dark-gray);
             color: var(--text-primary);
@@ -43,7 +48,12 @@
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.7);
             z-index: 10;
         }
-        
+
+        h1 {
+            font-family: 'Martian Mono', monospace;
+            font-weight: 600;
+        }
+
         .clock-container {
             position: absolute;
             top: 1rem;
@@ -56,33 +66,34 @@
             font-weight: bold;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
-        
+
         .clock {
             display: flex;
             align-items: center;
         }
-        
+
         .clock-segment {
             margin: 0 0.1rem;
             position: relative;
+            font-family: 'Martian Mono', monospace;
         }
-        
+
         .clock-colon {
             margin: 0 0.2rem;
             animation: blink 2s infinite;
         }
-        
+
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
         }
-        
+
         .nav-links {
             display: flex;
             justify-content: center;
             margin-top: 1rem;
         }
-        
+
         .nav-link {
             color: var(--text-primary);
             text-decoration: none;
@@ -95,7 +106,7 @@
             background-color: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border);
         }
-        
+
         .nav-link::before {
             content: '';
             position: absolute;
@@ -106,23 +117,25 @@
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
             transition: 0.5s;
         }
-        
+
         .nav-link:hover::before {
             left: 100%;
         }
-        
+
         .nav-link:hover {
             background-color: var(--highlight);
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-        
+
         main {
             padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
+            position: relative;
+            z-index: 5;
         }
-        
+
         section {
             margin-bottom: 3rem;
             padding: 2rem;
@@ -135,23 +148,19 @@
             transform: translateY(30px);
             will-change: transform, opacity;
         }
-        
+
         section.visible {
             opacity: 1;
             transform: translateY(0);
         }
-        
-        h1, h2, h3 {
-            color: var(--text-primary);
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-        }
-        
+
         h2 {
             margin-bottom: 1.5rem;
             position: relative;
             display: inline-block;
+            font-family: 'Martian Mono', monospace;
         }
-        
+
         h2::after {
             content: '';
             position: absolute;
@@ -162,13 +171,13 @@
             background: linear-gradient(90deg, #555, transparent);
             border-radius: 3px;
         }
-        
+
         .puzzle-container {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        
+
         .upload-area {
             width: 100%;
             max-width: 500px;
@@ -186,24 +195,24 @@
             overflow: hidden;
             background-color: var(--light-gray);
         }
-        
-        .upload-area:hover {
+
+        .upload-area:hover, .upload-area.dragover {
             border-color: var(--text-primary);
             background-color: rgba(255, 255, 255, 0.05);
             box-shadow: 0 0 20px var(--glow);
         }
-        
+
         .upload-icon {
             font-size: 3rem;
             margin-bottom: 1rem;
             color: var(--text-secondary);
             transition: transform 0.3s ease;
         }
-        
-        .upload-area:hover .upload-icon {
+
+        .upload-area:hover .upload-icon, .upload-area.dragover .upload-icon {
             transform: scale(1.2);
         }
-        
+
         .puzzle-board {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -215,7 +224,7 @@
             padding: 12px;
             border-radius: 10px;
         }
-        
+
         .puzzle-piece {
             aspect-ratio: 1;
             background-size: cover;
@@ -227,7 +236,7 @@
             overflow: hidden;
             will-change: transform;
         }
-        
+
         .puzzle-piece::before {
             content: '';
             position: absolute;
@@ -238,17 +247,17 @@
             background: rgba(0, 0, 0, 0.3);
             transition: opacity 0.3s ease;
         }
-        
+
         .puzzle-piece:hover {
-            transform: scale(1.05);
+            transform: scale(1.05) rotate(2deg);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             z-index: 2;
         }
-        
+
         .puzzle-piece:hover::before {
             opacity: 0;
         }
-        
+
         .puzzle-controls {
             display: flex;
             gap: 1rem;
@@ -256,7 +265,7 @@
             flex-wrap: wrap;
             justify-content: center;
         }
-        
+
         button {
             background-color: var(--accent);
             color: var(--text-primary);
@@ -270,18 +279,19 @@
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             will-change: transform;
+            font-family: 'Martian Mono', monospace;
         }
-        
+
         button:hover {
             background-color: var(--highlight);
             transform: translateY(-3px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
         }
-        
+
         button:active {
             transform: translateY(1px);
         }
-        
+
         .ripple {
             position: absolute;
             border-radius: 50%;
@@ -290,14 +300,14 @@
             animation: ripple 0.6s linear;
             pointer-events: none;
         }
-        
+
         @keyframes ripple {
             to {
                 transform: scale(4);
                 opacity: 0;
             }
         }
-        
+
         .leaderboard {
             width: 100%;
             max-width: 500px;
@@ -307,37 +317,37 @@
             padding: 1.5rem;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-        
+
         .leaderboard h3 {
             margin-bottom: 1.5rem;
             text-align: center;
         }
-        
+
         .leaderboard-table {
             width: 100%;
             border-collapse: collapse;
         }
-        
+
         .leaderboard-table th, 
         .leaderboard-table td {
             padding: 1rem;
             text-align: left;
             border-bottom: 1px solid var(--border);
         }
-        
+
         .leaderboard-table th {
             background-color: var(--accent);
             color: var(--text-primary);
         }
-        
+
         .leaderboard-table tr:nth-child(even) {
             background-color: rgba(0, 0, 0, 0.1);
         }
-        
+
         .leaderboard-table tr:hover {
             background-color: rgba(255, 255, 255, 0.05);
         }
-        
+
         .game-container {
             width: 100%;
             height: 500px;
@@ -349,12 +359,12 @@
             position: relative;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
+
         .game-container:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
         }
-        
+
         .game-container::before {
             content: '';
             position: absolute;
@@ -365,7 +375,7 @@
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, transparent 100%);
             pointer-events: none;
         }
-        
+
         footer {
             background-color: var(--dark-gray);
             color: var(--text-primary);
@@ -373,13 +383,14 @@
             padding: 2rem;
             margin-top: 3rem;
             box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            position: relative;
         }
-        
+
         .hidden {
             display: none;
         }
-        
-        /* Modal styles */
+
         .modal {
             position: fixed;
             top: 0;
@@ -395,12 +406,12 @@
             pointer-events: none;
             transition: opacity 0.4s ease;
         }
-        
+
         .modal.active {
             opacity: 1;
             pointer-events: all;
         }
-        
+
         .modal-content {
             background-color: var(--secondary);
             padding: 2.5rem;
@@ -414,11 +425,11 @@
             transform: scale(0.9);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        
+
         .modal.active .modal-content {
             transform: scale(1);
         }
-        
+
         .close-modal {
             position: absolute;
             top: 15px;
@@ -430,12 +441,11 @@
             color: var(--text-primary);
             transition: transform 0.3s ease;
         }
-        
+
         .close-modal:hover {
             transform: rotate(90deg) scale(1.1);
         }
-        
-        /* Confetti effect */
+
         .confetti {
             position: fixed;
             width: 12px;
@@ -445,43 +455,47 @@
             background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff, #ffff00, #ff00ff, #00ffff);
             border-radius: 50%;
         }
-        
-        /* Scroll indicator */
-        .scroll-indicator {
+
+        .fidget-spinner {
             position: fixed;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            color: var(--text-secondary);
-            animation: bounce 2s infinite;
-            z-index: 100;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, var(--accent) 10%, var(--dark-gray) 60%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             cursor: pointer;
-            padding: 0.5rem 1rem;
-            background-color: rgba(0, 0, 0, 0.5);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            transition: box-shadow 0.3s ease;
         }
-        
-        .scroll-indicator:hover {
-            background-color: rgba(0, 0, 0, 0.7);
-            color: var(--text-primary);
+
+        .fidget-spinner.spinning {
+            box-shadow: 0 0 20px var(--glow);
         }
-        
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateX(-50%) translateY(0);
-            }
-            40% {
-                transform: translateX(-50%) translateY(-15px);
-            }
-            60% {
-                transform: translateX(-50%) translateY(-7px);
-            }
+
+        .fidget-spinner::before,
+        .fidget-spinner::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: var(--highlight);
+            border-radius: 50%;
         }
-        
-        /* Loading animations */
+
+        .fidget-spinner::before {
+            top: 10px;
+        }
+
+        .fidget-spinner::after {
+            bottom: 10px;
+        }
+
         .game-loading {
             display: flex;
             flex-direction: column;
@@ -491,7 +505,7 @@
             background-color: rgba(0, 0, 0, 0.7);
             color: var(--text-primary);
         }
-        
+
         .loading-spinner {
             width: 50px;
             height: 50px;
@@ -501,76 +515,166 @@
             animation: spin 1s linear infinite;
             margin-bottom: 1.5rem;
         }
-        
+
         @keyframes spin {
             100% { transform: rotate(360deg); }
         }
-        
-        /* Background particles */
-        .particles-container {
+
+        /* Background Animation Styles */
+        a-hole {
             position: fixed;
             top: 0;
             left: 0;
+            margin: 0;
+            padding: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
+            overflow: hidden;
             z-index: -1;
         }
-        
-        .particle {
+
+        a-hole::before {
             position: absolute;
-            border-radius: 50%;
-            background: rgba(100, 150, 255, 0.1);
-            filter: blur(1px);
+            top: 50%;
+            left: 50%;
+            z-index: 2;
+            display: block;
+            width: 150%;
+            height: 140%;
+            background: radial-gradient(ellipse at 50% 55%, transparent 10%, black 50%);
+            transform: translate3d(-50%, -50%, 0);
+            content: "";
         }
-        
-        /* Responsive adjustments */
+
+        a-hole::after {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            z-index: 5;
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 75%, #a900ff 20%, transparent 75%);
+            mix-blend-mode: overlay;
+            transform: translate3d(-50%, -50%, 0);
+            content: "";
+        }
+
+        @keyframes aura-glow {
+            0% { background-position: 0 100%; }
+            100% { background-position: 0 300%; }
+        }
+
+        .aura {
+            position: absolute;
+            top: -71.5%;
+            left: 50%;
+            z-index: 3;
+            width: 30%;
+            height: 140%;
+            background: linear-gradient(
+                20deg,
+                #00f8f1,
+                #ffbd1e20 16.5%,
+                #fe848f 33%,
+                #fe848f20 49.5%,
+                #00f8f1 66%,
+                #00f8f160 85.5%,
+                #ffbd1e 100%
+            ) 0 100% / 100% 200%;
+            border-radius: 0 0 100% 100%;
+            filter: blur(50px);
+            mix-blend-mode: plus-lighter;
+            opacity: 0.75;
+            transform: translate3d(-50%, 0, 0);
+            animation: aura-glow 5s infinite linear;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                transparent,
+                transparent 1px,
+                white 1px,
+                white 2px
+            );
+            mix-blend-mode: overlay;
+            opacity: 0.5;
+        }
+
+        a-hole canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
         @media (max-width: 768px) {
             .clock-container {
                 position: static;
                 margin-top: 1rem;
             }
-            
+
             .nav-links {
                 flex-direction: column;
                 align-items: center;
             }
-            
+
             .nav-link {
                 margin: 0.5rem 0;
                 width: 80%;
                 text-align: center;
             }
-            
+
             section {
                 padding: 1.5rem;
             }
-            
+
             .game-container {
                 height: 350px;
             }
+
+            .fidget-spinner {
+                width: 60px;
+                height: 60px;
+            }
+
+            .fidget-spinner::before,
+            .fidget-spinner::after {
+                width: 15px;
+                height: 15px;
+            }
         }
-        
-        /* Custom scrollbar */
+
         ::-webkit-scrollbar {
             width: 10px;
         }
-        
+
         ::-webkit-scrollbar-track {
             background: var(--dark-gray);
         }
-        
+
         ::-webkit-scrollbar-thumb {
             background: var(--accent);
             border-radius: 5px;
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
             background: var(--highlight);
         }
     </style>
 </head>
 <body>
+    <a-hole>
+        <canvas class="js-canvas"></canvas>
+        <div class="aura"></div>
+        <div class="overlay"></div>
+    </a-hole>
+
     <header>
         <h1>RSV-Puzzle_Portal</h1>
         <div class="clock-container">
@@ -590,17 +694,17 @@
             <a href="https://resume-rsv.ct.ws/" class="nav-link" target="_blank">My Resume</a>
         </div>
     </header>
-    
+
     <main>
         <section id="puzzle">
             <h2>Puzzle Game</h2>
             <div class="puzzle-container">
                 <div class="upload-area" id="uploadArea">
                     <div class="upload-icon">📁</div>
-                    <p>Click to upload an image</p>
+                    <p>Click or drag to upload an image</p>
                     <input type="file" id="imageUpload" accept="image/*" style="display: none;">
                 </div>
-                
+
                 <div id="puzzleSetup" class="hidden">
                     <p>Choose puzzle difficulty:</p>
                     <div class="puzzle-controls">
@@ -609,7 +713,7 @@
                         <button id="hardBtn">Hard (5x5)</button>
                     </div>
                 </div>
-                
+
                 <div id="puzzleGame" class="hidden">
                     <div class="puzzle-board" id="puzzleBoard"></div>
                     <div class="puzzle-controls">
@@ -617,7 +721,7 @@
                         <button id="solveBtn">Solve</button>
                         <button id="newPuzzleBtn">New Puzzle</button>
                     </div>
-                    
+
                     <div class="leaderboard">
                         <h3>Top Players</h3>
                         <table class="leaderboard-table">
@@ -629,15 +733,13 @@
                                     <th>Moves</th>
                                 </tr>
                             </thead>
-                            <tbody id="leaderboardBody">
-                                <!-- Leaderboard entries will be added here -->
-                            </tbody>
+                            <tbody id="leaderboardBody"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </section>
-        
+
         <section id="crossy">
             <h2>Crossy Road Game</h2>
             <div class="game-container" id="crossyGame">
@@ -647,7 +749,7 @@
                 </div>
             </div>
         </section>
-        
+
         <section id="stack">
             <h2>Stack Game</h2>
             <div class="game-container" id="stackGame">
@@ -657,15 +759,12 @@
                 </div>
             </div>
         </section>
-        
-        <div class="scroll-indicator">↓ Scroll Down ↓</div>
     </main>
-    
+
     <footer>
         <p>© 2025 RSV-Puzzle_Portal | Created by Ravi sai vigneswara</p>
     </footer>
-    
-    <!-- Modal for puzzle completion -->
+
     <div class="modal" id="completionModal">
         <div class="modal-content">
             <button class="close-modal" id="closeModal">&times;</button>
@@ -677,31 +776,258 @@
             </div>
         </div>
     </div>
-    
+
+    <div class="fidget-spinner" id="fidgetSpinner"></div>
+
     <script>
-        // ====== CLOCK ANIMATION ======
+        // === Background Animation ===
+        class AHole extends HTMLElement {
+            connectedCallback() {
+                this.canvas = this.querySelector(".js-canvas");
+                this.ctx = this.canvas.getContext("2d");
+                this.discs = [];
+                this.lines = [];
+                this.particles = [];
+                this.setSize();
+                this.setDiscs();
+                this.setLines();
+                this.setParticles();
+                this.bindEvents();
+                requestAnimationFrame(this.tick.bind(this));
+            }
+
+            bindEvents() {
+                window.addEventListener("resize", this.onResize.bind(this));
+            }
+
+            onResize() {
+                this.setSize();
+                this.setDiscs();
+                this.setLines();
+                this.setParticles();
+            }
+
+            setSize() {
+                this.rect = this.getBoundingClientRect();
+                this.render = {
+                    width: this.rect.width,
+                    height: this.rect.height,
+                    dpi: window.devicePixelRatio
+                };
+                this.canvas.width = this.render.width * this.render.dpi;
+                this.canvas.height = this.render.height * this.render.dpi;
+            }
+
+            setDiscs() {
+                const { width, height } = this.rect;
+                this.discs = [];
+                this.startDisc = { x: width * 0.5, y: height * 0.45, w: width * 0.75, h: height * 0.7 };
+                this.endDisc = { x: width * 0.5, y: height * 0.95, w: 0, h: 0 };
+                const totalDiscs = 100;
+                let prevBottom = height;
+                this.clip = {};
+
+                for (let i = 0; i < totalDiscs; i++) {
+                    const p = i / totalDiscs;
+                    const disc = this.tweenDisc({ p });
+                    const bottom = disc.y + disc.h;
+                    if (bottom <= prevBottom) {
+                        this.clip = { disc: { ...disc }, i };
+                    }
+                    prevBottom = bottom;
+                    this.discs.push(disc);
+                }
+
+                this.clip.path = new Path2D();
+                this.clip.path.ellipse(this.clip.disc.x, this.clip.disc.y, this.clip.disc.w, this.clip.disc.h, 0, 0, Math.PI * 2);
+                this.clip.path.rect(this.clip.disc.x - this.clip.disc.w, 0, this.clip.disc.w * 2, this.clip.disc.y);
+            }
+
+            setLines() {
+                const { width, height } = this.rect;
+                this.lines = [];
+                const totalLines = 100;
+                const linesAngle = (Math.PI * 2) / totalLines;
+
+                for (let i = 0; i < totalLines; i++) {
+                    this.lines.push([]);
+                }
+
+                this.discs.forEach((disc) => {
+                    for (let i = 0; i < totalLines; i++) {
+                        const angle = i * linesAngle;
+                        const p = { x: disc.x + Math.cos(angle) * disc.w, y: disc.y + Math.sin(angle) * disc.h };
+                        this.lines[i].push(p);
+                    }
+                });
+
+                this.linesCanvas = new OffscreenCanvas(width, height);
+                const ctx = this.linesCanvas.getContext("2d");
+
+                this.lines.forEach((line, i) => {
+                    ctx.save();
+                    let lineIsIn = false;
+                    line.forEach((p1, j) => {
+                        if (j === 0) return;
+                        const p0 = line[j - 1];
+                        if (!lineIsIn && (ctx.isPointInPath(this.clip.path, p1.x, p1.y) || ctx.isPointInStroke(this.clip.path, p1.x, p1.y))) {
+                            lineIsIn = true;
+                        } else if (lineIsIn) {
+                            ctx.clip(this.clip.path);
+                        }
+                        ctx.beginPath();
+                        ctx.moveTo(p0.x, p0.y);
+                        ctx.lineTo(p1.x, p1.y);
+                        ctx.strokeStyle = "#444";
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        ctx.closePath();
+                    });
+                    ctx.restore();
+                });
+
+                this.linesCtx = ctx;
+            }
+
+            setParticles() {
+                const { width, height } = this.rect;
+                this.particles = [];
+                this.particleArea = {
+                    sw: this.clip.disc.w * 0.5,
+                    ew: this.clip.disc.w * 2,
+                    h: height * 0.85
+                };
+                this.particleArea.sx = (width - this.particleArea.sw) / 2;
+                this.particleArea.ex = (width - this.particleArea.ew) / 2;
+                const totalParticles = 100;
+
+                for (let i = 0; i < totalParticles; i++) {
+                    const particle = this.initParticle(true);
+                    this.particles.push(particle);
+                }
+            }
+
+            initParticle(start = false) {
+                const sx = this.particleArea.sx + this.particleArea.sw * Math.random();
+                const ex = this.particleArea.ex + this.particleArea.ew * Math.random();
+                const dx = ex - sx;
+                const vx = 0.1 + Math.random() * 0.5;
+                const y = start ? this.particleArea.h * Math.random() : this.particleArea.h;
+                const r = 0.5 + Math.random() * 4;
+                const vy = 0.5 + Math.random();
+
+                return { x: sx, sx, dx, y, vy, p: 0, r, c: `rgba(255, 255, 255, ${Math.random()})` };
+            }
+
+            tweenValue(start, end, p, ease = false) {
+                const delta = end - start;
+                const easeFn = easingUtils[ease ? "ease" + ease.charAt(0).toUpperCase() + ease.slice(1) : "linear"];
+                return start + delta * easeFn(p);
+            }
+
+            drawDiscs() {
+                const { ctx } = this;
+                ctx.strokeStyle = "#444";
+                ctx.lineWidth = 2;
+                const outerDisc = this.startDisc;
+                ctx.beginPath();
+                ctx.ellipse(outerDisc.x, outerDisc.y, outerDisc.w, outerDisc.h, 0, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.closePath();
+
+                this.discs.forEach((disc, i) => {
+                    if (i % 5 !== 0) return;
+                    if (disc.w < this.clip.disc.w - 5) ctx.save();
+                    ctx.beginPath();
+                    ctx.ellipse(disc.x, disc.y, disc.w, disc.h, 0, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.closePath();
+                    if (disc.w < this.clip.disc.w - 5) ctx.restore();
+                });
+            }
+
+            drawLines() {
+                const { ctx, linesCanvas } = this;
+                ctx.drawImage(linesCanvas, 0, 0);
+            }
+
+            drawParticles() {
+                const { ctx } = this;
+                ctx.save();
+                ctx.clip(this.clip.path);
+                this.particles.forEach((particle) => {
+                    ctx.fillStyle = particle.c;
+                    ctx.beginPath();
+                    ctx.rect(particle.x, particle.y, particle.r, particle.r);
+                    ctx.closePath();
+                    ctx.fill();
+                });
+                ctx.restore();
+            }
+
+            moveDiscs() {
+                this.discs.forEach((disc) => {
+                    disc.p = (disc.p + 0.001) % 1;
+                    this.tweenDisc(disc);
+                });
+            }
+
+            moveParticles() {
+                this.particles.forEach((particle) => {
+                    particle.p = 1 - particle.y / this.particleArea.h;
+                    particle.x = particle.sx + particle.dx * particle.p;
+                    particle.y -= particle.vy;
+                    if (particle.y < 0) particle.y = this.initParticle().y;
+                });
+            }
+
+            tweenDisc(disc) {
+                disc.x = this.tweenValue(this.startDisc.x, this.endDisc.x, disc.p);
+                disc.y = this.tweenValue(this.startDisc.y, this.endDisc.y, disc.p, "inExpo");
+                disc.w = this.tweenValue(this.startDisc.w, this.endDisc.w, disc.p);
+                disc.h = this.tweenValue(this.startDisc.h, this.endDisc.h, disc.p);
+                return disc;
+            }
+
+            tick(time) {
+                const { ctx } = this;
+                ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                ctx.save();
+                ctx.scale(this.render.dpi, this.render.dpi);
+                this.moveDiscs();
+                this.moveParticles();
+                this.drawDiscs();
+                this.drawLines();
+                this.drawParticles();
+                ctx.restore();
+                requestAnimationFrame(this.tick.bind(this));
+            }
+        }
+
+        customElements.define("a-hole", AHole);
+
+        // === Clock Animation ===
         function updateClock() {
             const now = new Date();
-            
-            // Convert to IST (UTC+5:30)
             const utc = now.getTime() + now.getTimezoneOffset() * 60000;
             const ist = new Date(utc + 3600000 * 5.5);
-            
             let hours = ist.getHours();
             const ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
-            hours = hours ? hours : 12; // Convert 0 to 12
-            
+            hours = hours ? hours : 12;
             const minutes = ist.getMinutes().toString().padStart(2, '0');
             const seconds = ist.getSeconds().toString().padStart(2, '0');
-            
-            // Animate clock segments
+
             animateNumber('hours', hours.toString().padStart(2, '0'));
             animateNumber('minutes', minutes);
             animateNumber('seconds', seconds);
             document.getElementById('ampm').textContent = ampm;
+
+            // Optional: Ticking sound
+            // const tickSound = new Audio('https://freesound.org/data/previews/269/269025_5094328-lq.mp3');
+            // tickSound.play();
         }
-        
+
         function animateNumber(elementId, newValue) {
             const element = document.getElementById(elementId);
             if (element.textContent !== newValue) {
@@ -714,46 +1040,41 @@
                 });
             }
         }
-        
+
         setInterval(updateClock, 1000);
-        updateClock(); // Initialize immediately
-        
-        // ====== SCROLL ANIMATIONS ======
+        updateClock();
+
+        // === Scroll Animations ===
         const sections = document.querySelectorAll('section');
-        
+        let lastScrollTime = 0;
+
         function checkScroll() {
+            const now = performance.now();
+            if (now - lastScrollTime < 16) return;
+            lastScrollTime = now;
+
             sections.forEach(section => {
                 const sectionTop = section.getBoundingClientRect().top;
                 const windowHeight = window.innerHeight;
-                
                 if (sectionTop < windowHeight * 0.75) {
                     section.classList.add('visible');
+                    // Parallax effect
+                    const scrollY = window.scrollY;
+                    section.style.transform = `translateY(${scrollY * 0.05}px)`;
                 }
             });
-            
-            // Hide scroll indicator when scrolled down
-            const scrollIndicator = document.querySelector('.scroll-indicator');
-            if (window.scrollY > 100) {
-                scrollIndicator.style.opacity = '0';
-                scrollIndicator.style.pointerEvents = 'none';
-            } else {
-                scrollIndicator.style.opacity = '1';
-                scrollIndicator.style.pointerEvents = 'auto';
-            }
         }
-        
+
         window.addEventListener('scroll', checkScroll);
         window.addEventListener('load', checkScroll);
-        
-        // ====== GAME LOADING ======
-        // Crossy Road Game
+
+        // === Game Loading ===
         setTimeout(() => {
             const crossyGameContainer = document.getElementById('crossyGame');
             crossyGameContainer.innerHTML = `
                 <iframe src="https://ravisairockey.github.io/cross_the_road_or_chicken_wings_github.io/" 
                         style="width:100%; height:100%; border:none;"></iframe>
             `;
-            
             anime({
                 targets: crossyGameContainer,
                 opacity: [0, 1],
@@ -761,15 +1082,13 @@
                 easing: 'easeOutQuad'
             });
         }, 2000);
-        
-        // Stack Game
+
         setTimeout(() => {
             const stackGameContainer = document.getElementById('stackGame');
             stackGameContainer.innerHTML = `
                 <iframe src="https://ravisairockey.github.io/EndlessRunner/" 
                         style="width:100%; height:100%; border:none;"></iframe>
             `;
-            
             anime({
                 targets: stackGameContainer,
                 opacity: [0, 1],
@@ -777,27 +1096,28 @@
                 easing: 'easeOutQuad'
             });
         }, 2500);
-        
-        // ====== MICRO-INTERACTIONS ======
-        // Ripple Effect for Buttons
-        document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('click', function(e) {
-                const x = e.clientX - e.target.getBoundingClientRect().left;
-                const y = e.clientY - e.target.getBoundingClientRect().top;
-                
+
+        // === Micro-Interactions ===
+        function addRippleEffect(element) {
+            element.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
                 const ripple = document.createElement('span');
                 ripple.className = 'ripple';
                 ripple.style.left = `${x}px`;
                 ripple.style.top = `${y}px`;
                 this.appendChild(ripple);
-                
-                setTimeout(() => {
-                    ripple.remove();
-                }, 1000);
+                setTimeout(() => ripple.remove(), 600);
+
+                // Optional: Click sound
+                // const clickSound = new Audio('https://freesound.org/data/previews/171/171671_2435878-lq.mp3');
+                // clickSound.play();
             });
-        });
-        
-        // Hover Effects
+        }
+
+        document.querySelectorAll('button, .nav-link').forEach(addRippleEffect);
+
         document.querySelectorAll('.nav-link, button, .game-container, section').forEach(el => {
             el.addEventListener('mouseenter', () => {
                 anime({
@@ -807,7 +1127,7 @@
                     easing: 'easeOutQuad'
                 });
             });
-            
+
             el.addEventListener('mouseleave', () => {
                 anime({
                     targets: el,
@@ -817,107 +1137,241 @@
                 });
             });
         });
-        
-        // ====== BACKGROUND PARTICLES ======
-        function createParticles() {
-            const particlesContainer = document.createElement('div');
-            particlesContainer.className = 'particles-container';
-            document.body.appendChild(particlesContainer);
-            
-            for (let i = 0; i < 30; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = `${Math.random() * 100}vw`;
-                particle.style.top = `${Math.random() * 100}vh`;
-                particle.style.width = `${Math.random() * 3 + 1}px`;
-                particle.style.height = particle.style.width;
-                particle.style.opacity = Math.random() * 0.2;
-                
-                particlesContainer.appendChild(particle);
-                
+
+        // === Photo Upload ===
+        const uploadArea = document.getElementById('uploadArea');
+        const imageUpload = document.getElementById('imageUpload');
+        const puzzleSetup = document.getElementById('puzzleSetup');
+        const puzzleGame = document.getElementById('puzzleGame');
+        const puzzleBoard = document.getElementById('puzzleBoard');
+        let uploadedImage = null;
+
+        uploadArea.addEventListener('click', () => imageUpload.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            handleImageUpload(file);
+        });
+
+        imageUpload.addEventListener('change', () => {
+            const file = imageUpload.files[0];
+            handleImageUpload(file);
+        });
+
+        function handleImageUpload(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    uploadedImage = new Image();
+                    uploadedImage.src = reader.result;
+                    uploadedImage.onload = () => {
+                        uploadArea.classList.add('hidden');
+                        puzzleSetup.classList.remove('hidden');
+                        anime({
+                            targets: puzzleSetup,
+                            opacity: [0, 1],
+                            translateY: [20, 0],
+                            duration: 500,
+                            easing: 'easeOutQuad'
+                        });
+                    };
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please upload a valid image file.');
+            }
+        }
+
+        // === Puzzle Game Setup ===
+        const difficultyButtons = {
+            easy: document.getElementById('easyBtn'),
+            medium: document.getElementById('mediumBtn'),
+            hard: document.getElementById('hardBtn')
+        };
+
+        Object.entries(difficultyButtons).forEach(([difficulty, button]) => {
+            button.addEventListener('click', () => {
+                const size = difficulty === 'easy' ? 3 : difficulty === 'medium' ? 4 : 5;
+                startPuzzle(size);
+            });
+        });
+
+        function startPuzzle(size) {
+            puzzleSetup.classList.add('hidden');
+            puzzleGame.classList.remove('hidden');
+            puzzleBoard.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+            puzzleBoard.innerHTML = '';
+
+            const pieceWidth = uploadedImage.width / size;
+            const pieceHeight = uploadedImage.height / size;
+
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    if (x === size - 1 && y === size - 1) continue; // Empty tile
+                    const piece = document.createElement('div');
+                    piece.className = 'puzzle-piece';
+                    piece.style.backgroundImage = `url(${uploadedImage.src})`;
+                    piece.style.backgroundPosition = `-${x * pieceWidth}px -${y * pieceHeight}px`;
+                    piece.dataset.x = x;
+                    piece.dataset.y = y;
+                    piece.addEventListener('click', () => movePuzzlePiece(piece, size));
+                    puzzleBoard.appendChild(piece);
+                }
+            }
+
+            anime({
+                targets: puzzleGame,
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 500,
+                easing: 'easeOutQuad'
+            });
+        }
+
+        // === Puzzle Game Logic ===
+        function movePuzzlePiece(piece, size) {
+            // Simplified logic: Implement actual sliding puzzle mechanics as needed
+            anime({
+                targets: piece,
+                scale: [1, 1.1, 1],
+                duration: 200,
+                easing: 'easeInOutQuad'
+            });
+
+            // Check for completion (placeholder)
+            setTimeout(() => {
+                showCompletionModal(50, '2:30');
+            }, 1000);
+        }
+
+        // === Modal and Confetti ===
+        const completionModal = document.getElementById('completionModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const leaderboardBtn = document.getElementById('leaderboardBtn');
+
+        function showCompletionModal(moves, time) {
+            document.getElementById('completionStats').textContent = `You solved the puzzle in ${moves} moves and ${time}!`;
+            completionModal.classList.add('active');
+            createConfetti();
+
+            // Optional: Completion sound
+            // const winSound = new Audio('https://freesound.org/data/previews/270/270304_5123851-lq.mp3');
+            // winSound.play();
+        }
+
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.top = `${Math.random() * 100}vh`;
+                document.body.appendChild(confetti);
                 anime({
-                    targets: particle,
-                    translateX: `${(Math.random() - 0.5) * 50}px`,
-                    translateY: `${(Math.random() - 0.5) * 50}px`,
-                    duration: Math.random() * 10000 + 5000,
-                    direction: 'alternate',
-                    loop: true,
-                    easing: 'easeInOutSine'
+                    targets: confetti,
+                    translateY: 1000,
+                    rotate: Math.random() * 360,
+                    opacity: [1, 0],
+                    duration: 2000,
+                    easing: 'easeInQuad',
+                    complete: () => confetti.remove()
                 });
             }
         }
-        
-        createParticles();
-        
-        // ====== SCROLL INDICATOR ======
-        const scrollIndicator = document.querySelector('.scroll-indicator');
-        anime({
-            targets: scrollIndicator,
-            opacity: [0.6, 1],
-            duration: 1500,
-            direction: 'alternate',
-            loop: true,
-            easing: 'easeInOutQuad'
+
+        closeModalBtn.addEventListener('click', () => {
+            completionModal.classList.remove('active');
         });
-        
-        scrollIndicator.addEventListener('click', () => {
-            anime({
-                targets: document.documentElement,
-                scrollTop: document.querySelector('#crossy').offsetTop - 20,
-                duration: 800,
-                easing: 'easeInOutQuad'
-            });
+
+        playAgainBtn.addEventListener('click', () => {
+            completionModal.classList.remove('active');
+            puzzleGame.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
         });
-        
-        // ====== KEYBOARD NAVIGATION ======
+
+        leaderboardBtn.addEventListener('click', () => {
+            // Placeholder: Add leaderboard logic
+            alert('Leaderboard coming soon!');
+        });
+
+        // === Fidget Spinner ===
+        const fidgetSpinner = document.getElementById('fidgetSpinner');
+        let isDragging = false;
+        let rotation = 0;
+        let velocity = 0;
+
+        fidgetSpinner.addEventListener('mousedown', () => {
+            isDragging = true;
+            velocity = 0;
+            fidgetSpinner.classList.add('spinning');
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            velocity = e.movementX * 0.1;
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        function spinFidgetSpinner() {
+            if (!isDragging && Math.abs(velocity) > 0.01) {
+                rotation += velocity;
+                velocity *= 0.98; // Friction
+                anime({
+                    targets: fidgetSpinner,
+                    rotate: rotation,
+                    duration: 16,
+                    easing: 'linear'
+                });
+            } else if (Math.abs(velocity) <= 0.01) {
+                fidgetSpinner.classList.remove('spinning');
+            }
+            requestAnimationFrame(spinFidgetSpinner);
+        }
+
+        spinFidgetSpinner();
+
+        // === Keyboard Navigation ===
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowDown') {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
                 const currentScroll = window.scrollY;
                 const windowHeight = window.innerHeight;
-                const nextSection = document.elementFromPoint(window.innerWidth / 2, currentScroll + windowHeight / 2).closest('section');
-                
-                if (nextSection) {
-                    e.preventDefault();
+                const targetSection = e.key === 'ArrowDown'
+                    ? document.elementFromPoint(window.innerWidth / 2, currentScroll + windowHeight / 2).closest('section')
+                    : document.elementFromPoint(window.innerWidth / 2, currentScroll - windowHeight / 2).closest('section');
+
+                if (targetSection) {
                     anime({
                         targets: document.documentElement,
-                        scrollTop: nextSection.offsetTop - 20,
-                        duration: 800,
-                        easing: 'easeInOutQuad'
-                    });
-                }
-            } else if (e.key === 'ArrowUp') {
-                const currentScroll = window.scrollY;
-                if (currentScroll === 0) return;
-                
-                const prevSection = document.elementFromPoint(window.innerWidth / 2, currentScroll - window.innerHeight / 2).closest('section');
-                
-                if (prevSection) {
-                    e.preventDefault();
-                    anime({
-                        targets: document.documentElement,
-                        scrollTop: prevSection.offsetTop - 20,
+                        scrollTop: targetSection.offsetTop - 20,
                         duration: 800,
                         easing: 'easeInOutQuad'
                     });
                 }
             }
         });
-        
-        // ====== INITIAL PAGE LOAD ANIMATION ======
+
+        // === Initial Page Load ===
         anime({
             targets: 'body',
             opacity: [0, 1],
             duration: 1000,
             easing: 'easeOutQuad'
         });
-        
-        // ====== PUZZLE GAME LOGIC (Same as before) ======
-        // ... (Keep the existing puzzle game logic from previous versions)
     </script>
 </body>
 </html>
-
-
-
-
-
