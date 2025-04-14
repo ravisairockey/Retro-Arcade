@@ -688,8 +688,12 @@
         <div class="nav-links">
             <a href="#puzzle" class="nav-link">Puzzle Game</a>
             <a href="#crossy" class="nav-link">Crossy Road</a>
+            <a href="#ghost-cave" class="nav-link">Ghost Cave</a>
             <a href="#stack" class="nav-link">Stack Game</a>
+            <a href="#aim-trainer" class="nav-link">Aim Trainer</a>
+            <a href="#pacman" class="nav-link">Pacman 3D</a>
             <a href="https://resume-rsv.ct.ws/" class="nav-link" target="_blank">My Resume</a>
+            <a href="https://ravisairockey.github.io/Game-Proto/" class="nav-link" target="_blank">Projects</a>
         </div>
     </header>
 
@@ -741,11 +745,21 @@
         </section>
 
         <section id="crossy">
-            <h2>Crossy Road Game</h2>
+            <h2>Crossy Road</h2>
             <div class="game-container" id="crossyGame">
                 <div class="game-loading">
                     <div class="loading-spinner"></div>
                     <p>Loading Crossy Road...</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="ghost-cave">
+            <h2>Ghost Cave</h2>
+            <div class="game-container" id="ghostCaveGame">
+                <div class="game-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading Ghost Cave...</p>
                 </div>
             </div>
         </section>
@@ -756,6 +770,26 @@
                 <div class="game-loading">
                     <div class="loading-spinner"></div>
                     <p>Loading Stack Game...</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="aim-trainer">
+            <h2>Aim Trainer</h2>
+            <div class="game-container" id="aimTrainerGame">
+                <div class="game-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading Aim Trainer...</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="pacman">
+            <h2>Pacman 3D</h2>
+            <div class="game-container" id="pacmanGame">
+                <div class="game-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading Pacman 3D...</p>
                 </div>
             </div>
         </section>
@@ -1071,9 +1105,23 @@
         }, 2000);
 
         setTimeout(() => {
+            const ghostCaveGameContainer = document.getElementById('ghostCaveGame');
+            ghostCaveGameContainer.innerHTML = `
+                <iframe src="https://ravisairockey.github.io/EndlessRunner/" 
+                        style="width:100%; height:100%; border:none;"></iframe>
+            `;
+            anime({
+                targets: ghostCaveGameContainer,
+                opacity: [0, 1],
+                duration: 1000,
+                easing: 'easeOutQuad'
+            });
+        }, 2500);
+
+        setTimeout(() => {
             const stackGameContainer = document.getElementById('stackGame');
             stackGameContainer.innerHTML = `
-                <iframe src="https://ravisairockey.github.io/EndlessRunner/" 
+                <iframe src="https://ravisairockey.github.io/stack-game.github.io/" 
                         style="width:100%; height:100%; border:none;"></iframe>
             `;
             anime({
@@ -1082,7 +1130,35 @@
                 duration: 1000,
                 easing: 'easeOutQuad'
             });
-        }, 2500);
+        }, 3000);
+
+        setTimeout(() => {
+            const aimTrainerGameContainer = document.getElementById('aimTrainerGame');
+            aimTrainerGameContainer.innerHTML = `
+                <iframe src="https://ravisairockey.github.io/Aim-Trainer.github.io/" 
+                        style="width:100%; height:100%; border:none;"></iframe>
+            `;
+            anime({
+                targets: aimTrainerGameContainer,
+                opacity: [0, 1],
+                duration: 1000,
+                easing: 'easeOutQuad'
+            });
+        }, 3500);
+
+        setTimeout(() => {
+            const pacmanGameContainer = document.getElementById('pacmanGame');
+            pacmanGameContainer.innerHTML = `
+                <iframe src="https://ravisairockey.github.io/pacman3d.github.io/" 
+                        style="width:100%; height:100%; border:none;"></iframe>
+            `;
+            anime({
+                targets: pacmanGameContainer,
+                opacity: [0, 1],
+                duration: 1000,
+                easing: 'easeOutQuad'
+            });
+        }, 4000);
 
         // ====== Micro-Interactions ======
         document.querySelectorAll('button').forEach(button => {
